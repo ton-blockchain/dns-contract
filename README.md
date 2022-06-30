@@ -1,2 +1,2 @@
-# dns-contract
-TON DNS Smart Contracts
+# TON DNS Smart Contracts
+
