@@ -1,0 +1,52 @@
+int mod(int x, int y) asm "MOD";
+
+;; "ton\0test\0" -> "ton"
+int get_top_domain_bits(slice domain) {
+    int i = 0;
+    int need_break = 0;
+    do {
+        int char = domain~load_uint(8); ;; we do not check domain.length because it MUST contains \0 character
+        need_break = char == 0;
+        if (~ need_break) {
+            i += 8;
+        }
+    } until (need_break);
+    throw_if(201, i == 0); ;; starts with \0
+    return i;
+}
+
+slice read_domain_from_comment(slice in_msg_body) {
+    int need_break = 0;
+    builder result = begin_cell();
+    do {
+        result = result.store_slice(in_msg_body~load_bits(in_msg_body.slice_bits()));
+        int refs_len = in_msg_body.slice_refs();
+        need_break = refs_len == 0;
+        if (~ need_break) {
+            throw_unless(202, refs_len == 1);
+            in_msg_body = in_msg_body~load_ref().begin_parse();
+        }
+    } until (need_break);
+    return result.end_cell().begin_parse();
+}
+
+int check_domain_string(slice domain) {
+    int i = 0;
+    int len = slice_bits(domain);
+    int need_break = 0;
+    do {
+        need_break = i == len;
+        if (~ need_break) {
+            int char = domain~load_uint(8);
+            ;; we can do it because additional UTF-8 character's octets >= 128 -- https://www.ietf.org/rfc/rfc3629.txt
+            int is_hyphen = (char == 45);
+            int valid_char = (is_hyphen & (i > 0) & (i < len - 8)) | ((char >= 48) & (char <= 57)) | ((char >= 97) & (char <= 122)); ;; '-' or 0-9 or a-z
+
+            need_break = ~ valid_char;
+            if (~ need_break) {
+                i += 8;
+            }
+        }
+    } until (need_break);
+    return i == len;
+}

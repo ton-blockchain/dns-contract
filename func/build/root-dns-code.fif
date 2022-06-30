@@ -1,0 +1,186 @@
+"Asm.fif" include
+// automatically generated from `stdlib.fc` `dns-utils.fc` `root-dns.fc` 
+PROGRAM{
+  DECLPROC get_top_domain_bits
+  DECLPROC read_domain_from_comment
+  DECLPROC check_domain_string
+  DECLPROC load_data
+  123660 DECLMETHOD dnsresolve
+  DECLPROC recv_internal
+  get_top_domain_bits PROC:<{
+    //  domain
+    0 PUSHINT	//  domain i=0
+    UNTIL:<{
+      SWAP	//  i domain
+      8 LDU	//  i char domain
+      SWAP	//  i domain char
+      0 EQINT	//  i domain need_break
+      DUP	//  i domain need_break need_break
+      NOT	//  i domain need_break _11
+      IF:<{	//  i domain need_break
+        s0 s2 XCHG	//  need_break domain i
+        8 ADDCONST	//  need_break domain i
+        s0 s2 XCHG	//  i domain need_break
+      }>	//  i domain need_break
+      s1 s2 XCHG	//  domain i need_break
+    }>	//  domain i
+    NIP	//  i
+    DUP	//  i i
+    0 EQINT	//  i _16
+    201 THROWIF
+  }>
+  read_domain_from_comment PROC:<{
+    //  in_msg_body
+    NEWC	//  in_msg_body result
+    UNTIL:<{
+      OVER	//  in_msg_body result in_msg_body
+      SBITS	//  in_msg_body result _6
+      s1 s2 XCHG	//  result in_msg_body _6
+      LDSLICEX	//  result _5 in_msg_body
+      -ROT	//  in_msg_body result _5
+      STSLICER	//  in_msg_body result
+      OVER	//  in_msg_body result in_msg_body
+      SREFS	//  in_msg_body result refs_len
+      DUP	//  in_msg_body result refs_len refs_len
+      0 EQINT	//  in_msg_body result refs_len need_break
+      DUP	//  in_msg_body result refs_len need_break need_break
+      NOT	//  in_msg_body result refs_len need_break _13
+      IF:<{	//  in_msg_body result refs_len need_break
+        SWAP	//  in_msg_body result need_break refs_len
+        1 EQINT	//  in_msg_body result need_break _16
+        202 THROWIFNOT
+        s0 s2 XCHG	//  need_break result in_msg_body
+        LDREF	//  need_break result _26 _25
+        DROP	//  need_break result _18
+        CTOS	//  need_break result in_msg_body
+        s0 s2 XCHG	//  in_msg_body result need_break
+      }>ELSE<{
+        NIP	//  in_msg_body result need_break
+      }>
+    }>	//  in_msg_body result
+    NIP	//  result
+    ENDC	//  _21
+    CTOS	//  _22
+  }>
+  check_domain_string PROC:<{
+    //  domain
+    0 PUSHINT	//  domain i=0
+    OVER	//  domain i=0 domain
+    SBITS	//  domain i=0 len
+    UNTIL:<{
+      2DUP	//  domain i len i len
+      EQUAL	//  domain i len need_break
+      DUP	//  domain i len need_break need_break
+      NOT	//  domain i len need_break _8
+      IF:<{	//  domain i len need_break
+        DROP	//  domain i len
+        s0 s2 XCHG	//  len i domain
+        8 LDU	//  len i char domain
+        OVER	//  len i char domain char
+        45 EQINT	//  len i char domain is_hyphen
+        s3 PUSH	//  len i char domain is_hyphen i
+        0 GTINT	//  len i char domain is_hyphen _18
+        AND	//  len i char domain _19
+        s4 PUSH	//  len i char domain _19 len
+        -8 ADDCONST	//  len i char domain _19 _21
+        s4 s(-1) PUXC	//  len i char domain _19 i _21
+        LESS	//  len i char domain _19 _22
+        AND	//  len i char domain _23
+        s2 PUSH	//  len i char domain _23 char
+        47 GTINT	//  len i char domain _23 _25
+        s3 PUSH	//  len i char domain _23 _25 char
+        58 LESSINT	//  len i char domain _23 _25 _27
+        AND	//  len i char domain _23 _28
+        OR	//  len i char domain _29
+        s2 PUSH	//  len i char domain _29 char
+        96 GTINT	//  len i char domain _29 _31
+        s0 s3 XCHG	//  len i _31 domain _29 char
+        123 LESSINT	//  len i _31 domain _29 _33
+        s1 s3 XCHG	//  len i _29 domain _31 _33
+        AND	//  len i _29 domain _34
+        s1 s2 XCHG	//  len i domain _29 _34
+        OR	//  len i domain valid_char
+        NOT	//  len i domain need_break
+        DUP	//  len i domain need_break need_break
+        NOT	//  len i domain need_break _37
+        IF:<{	//  len i domain need_break
+          s0 s2 XCHG	//  len need_break domain i
+          8 ADDCONST	//  len need_break domain i
+          s0 s2 XCHG	//  len i domain need_break
+        }>	//  len i domain need_break
+        s1 s3 XCHG	//  domain i len need_break
+      }>	//  domain i len need_break
+    }>	//  domain i len
+    1 2 BLKDROP2	//  i len
+    EQUAL	//  _40
+  }>
+  load_data PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+  }>
+  dnsresolve PROC:<{
+    //  subdomain category
+    DROP	//  subdomain
+    DUP	//  subdomain subdomain
+    SBITS	//  subdomain _3
+    8 PUSHINT	//  subdomain _3 _4=8
+    MOD	//  subdomain _5
+    0 EQINT	//  subdomain _7
+    70 THROWIFNOT
+    DUP	//  subdomain subdomain
+    8 PLDI	//  subdomain _11
+    0 EQINT	//  subdomain starts_with_zero_byte
+    OVER	//  subdomain starts_with_zero_byte subdomain
+    SBITS	//  subdomain starts_with_zero_byte _14
+    8 EQINT	//  subdomain starts_with_zero_byte _16
+    s1 s(-1) PUXC	//  subdomain starts_with_zero_byte starts_with_zero_byte _16
+    AND	//  subdomain starts_with_zero_byte _17
+    IFJMP:<{	//  subdomain starts_with_zero_byte
+      2DROP	// 
+      8 PUSHINT	//  _18=8
+      PUSHNULL	//  _18=8 _19
+    }>	//  subdomain starts_with_zero_byte
+    DUP	//  subdomain starts_with_zero_byte starts_with_zero_byte
+    IF:<{	//  subdomain starts_with_zero_byte
+      SWAP	//  starts_with_zero_byte subdomain
+      8 LDU	//  starts_with_zero_byte _49 _48
+      NIP	//  starts_with_zero_byte subdomain
+      SWAP	//  subdomain starts_with_zero_byte
+    }>	//  subdomain starts_with_zero_byte
+    OVER	//  subdomain starts_with_zero_byte subdomain
+    get_top_domain_bits CALLDICT	//  subdomain starts_with_zero_byte top_subdomain_bits
+    s1 s2 XCHG	//  starts_with_zero_byte subdomain top_subdomain_bits
+    LDSLICEX	//  starts_with_zero_byte _51 _50
+    DROP	//  starts_with_zero_byte top_subdomain
+    x{746f6e} PUSHSLICE	//  starts_with_zero_byte top_subdomain my_domain
+    DUP	//  starts_with_zero_byte top_subdomain my_domain my_domain
+    SBITS	//  starts_with_zero_byte top_subdomain my_domain my_domain_bits
+    -ROT	//  starts_with_zero_byte my_domain_bits top_subdomain my_domain
+    SDEQ	//  starts_with_zero_byte my_domain_bits _32
+    NOT	//  starts_with_zero_byte my_domain_bits _33
+    IFJMP:<{	//  starts_with_zero_byte my_domain_bits
+      2DROP	// 
+      0 PUSHINT	//  _34=0
+      PUSHNULL	//  _34=0 _35
+    }>	//  starts_with_zero_byte my_domain_bits
+    47763 PUSHINT	//  starts_with_zero_byte my_domain_bits _37=47763
+    NEWC	//  starts_with_zero_byte my_domain_bits _37=47763 _38
+    16 STU	//  starts_with_zero_byte my_domain_bits _40
+    load_data INLINECALLDICT	//  starts_with_zero_byte my_domain_bits _40 _41
+    STSLICER	//  starts_with_zero_byte my_domain_bits _42
+    ENDC	//  starts_with_zero_byte my_domain_bits result
+    s0 s2 XCHG	//  result my_domain_bits starts_with_zero_byte
+    IF:<{	//  result my_domain_bits
+      8 PUSHINT	//  result my_domain_bits _44=8
+    }>ELSE<{	//  result my_domain_bits
+      0 PUSHINT	//  result my_domain_bits _44=0
+    }>
+    ADD	//  result _47
+    SWAP	//  _47 result
+  }>
+  recv_internal PROC:<{
+    //  msg_value in_msg_full in_msg_body
+    3 BLKDROP	// 
+  }>
+}END>c

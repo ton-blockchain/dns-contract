@@ -1,20 +1,46 @@
-;;
-;;  TON NFT Item Smart Contract
-;;
-
-{-
-
-    NOTE that this tokens can be transferred within the same workchain.
-
-    This is suitable for most tokens, if you need tokens transferable between workchains there are two solutions:
-
-    1) use more expensive but universal function to calculate message forward fee for arbitrary destination (see `misc/forward-fee-calc.cs`)
-
-    2) use token holder proxies in target workchain (that way even 'non-universal' token can be used from any workchain)
-
--}
+;; Domain smart contract (implement NFT item interface)
 
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
+
+const one_year = 31540000;
+const auction_duration = 300; ;; 5 min (in mainnet 1 week)
+const auction_prolongation = 10; ;; 10 sec (in mainnet 1 hour)
+
+slice zero_address() {
+    return begin_cell().store_uint(0, 2).end_cell().begin_parse();
+}
+
+slice pack_string(slice a, slice b) {
+    builder result = begin_cell().store_uint(0, 8).store_slice(a); ;; https://github.com/ton-blockchain/TIPs/issues/64
+    if (~ null?(b)) {
+        if (slice_bits(a) + slice_bits(b) <= (1023 - 8)) {
+            result = result.store_slice(b);
+        } else {
+            result = result.store_ref(begin_cell().store_slice(b).end_cell());
+        }
+    }
+    return result.end_cell().begin_parse();
+}
+
+;;  MsgAddressInt max_bid_address
+;;  Coins max_bid_amount
+;;  int auction_end_time
+(slice, int, int) unpack_auction(cell auction) {
+    if (cell_null?(auction)) {
+        return (null(), 0, 0);
+    } else {
+        slice ds = auction.begin_parse();
+        return (ds~load_msg_addr(), ds~load_coins(), ds~load_uint(64));
+    }
+}
+
+cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_time) {
+    return begin_cell()
+            .store_slice(max_bid_address)
+            .store_coins(max_bid_amount)
+            .store_uint(auction_end_time, 64)
+            .end_cell();
+}
 
 ;;
 ;;  Storage
@@ -23,49 +49,51 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 ;;  MsgAddressInt collection_address
 ;;  MsgAddressInt owner_address
 ;;  cell content
-;;  MsgAddressInt editor_address
-;;
+;;  cell domain - e.g contains "alice" (without ending \0) for "alice.ton" domain
+;;  cell auction - auction info
+;;  int last_fill_up_time
 
-(int, int, slice, slice, cell, slice) load_data() {
+(int, int, slice, slice, cell, cell, cell, int) load_data() {
     slice ds = get_data().begin_parse();
-    var (index, collection_address) = (ds~load_uint(64), ds~load_msg_addr());
+    var (index, collection_address) = (ds~load_uint(256), ds~load_msg_addr());
     if (ds.slice_bits() > 0) {
-      return (-1, index, collection_address, ds~load_msg_addr(), ds~load_ref(),  ds~load_msg_addr());
-    } else {  
-      return (0, index, collection_address, null(), null(), null()); ;; nft not initialized yet
+        return (-1, index, collection_address, ds~load_msg_addr(), ds~load_ref(), ds~load_ref(), ds~load_dict(), ds~load_uint(64));
+    } else {
+        return (0, index, collection_address, null(), null(), null(), null(), 0); ;; nft not initialized yet
     }
 }
 
-() store_data(int index, slice collection_address, slice owner_address, cell content, slice editor_address) impure {
+() store_data(int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) impure {
     set_data(
-        begin_cell()
-            .store_uint(index, 64)
-            .store_slice(collection_address)
-            .store_slice(owner_address)
-            .store_ref(content)
-            .store_slice(editor_address)
-            .end_cell()
+            begin_cell()
+                    .store_uint(index, 256)
+                    .store_slice(collection_address)
+                    .store_slice(owner_address)
+                    .store_ref(content)
+                    .store_ref(domain)
+                    .store_dict(auction)
+                    .store_uint(last_fill_up_time, 64)
+                    .end_cell()
     );
 }
 
 () send_msg(slice to_address, int amount, int op, int query_id, builder payload, int send_mode) impure inline {
-  var msg = begin_cell()
-    .store_uint(0x10, 6) ;; nobounce - int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
-    .store_slice(to_address)
-    .store_coins(amount)
-    .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-    .store_uint(op, 32)
-    .store_uint(query_id, 64);
+    var msg = begin_cell()
+            .store_uint(0x10, 6) ;; nobounce - int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
+            .store_slice(to_address)
+            .store_coins(amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_uint(op, 32)
+            .store_uint(query_id, 64);
 
-  if (~ builder_null?(payload)) {
-    msg = msg.store_builder(payload);
-  }
+    if (~ builder_null?(payload)) {
+        msg = msg.store_builder(payload);
+    }
 
-  send_raw_message(msg.end_cell(), send_mode);
+    send_raw_message(msg.end_cell(), send_mode);
 }
 
-() transfer_ownership(int my_balance, int index, slice collection_address, slice owner_address, cell content, slice editor_address, slice sender_address, int query_id, slice in_msg_body, int fwd_fees) impure inline {
-    throw_unless(401, equal_slices(sender_address, owner_address));
+() transfer_ownership(int my_balance, int index, slice collection_address, slice owner_address, cell content, slice sender_address, int query_id, slice in_msg_body, int fwd_fees, cell domain, cell auction, int last_fill_up_time) impure inline {
 
     slice new_owner_address = in_msg_body~load_msg_addr();
     force_chain(new_owner_address);
@@ -75,62 +103,27 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
     int rest_amount = my_balance - min_tons_for_storage();
     if (forward_amount) {
-      rest_amount -= (forward_amount + fwd_fees);
+        rest_amount -= (forward_amount + fwd_fees);
     }
     int need_response = response_destination.preload_uint(2) != 0; ;; if NOT addr_none: 00
     if (need_response) {
-      rest_amount -= fwd_fees;
+        rest_amount -= fwd_fees;
     }
 
     throw_unless(402, rest_amount >= 0); ;; base nft spends fixed amount of gas, will not check for response
 
     if (forward_amount) {
-      send_msg(new_owner_address, forward_amount, op::ownership_assigned(), query_id, begin_cell().store_slice(owner_address).store_slice(in_msg_body), 1);  ;; paying fees, revert on errors
+        send_msg(new_owner_address, forward_amount, op::ownership_assigned(), query_id, begin_cell().store_slice(owner_address).store_slice(in_msg_body), 1); ;; paying fees, revert on errors
     }
     if (need_response) {
-      force_chain(response_destination);
-      send_msg(response_destination, rest_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
+        force_chain(response_destination);
+        send_msg(response_destination, rest_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
     }
 
-    store_data(index, collection_address, new_owner_address, content, editor_address);
-}
-
-() transfer_editorship(int my_balance, int index, slice collection_address, slice owner_address, cell content, slice editor_address, slice sender_address, int query_id, slice in_msg_body, int fwd_fees) impure inline {
-    throw_unless(401, equal_slices(sender_address, editor_address));
-
-    slice new_editor_address = in_msg_body~load_msg_addr();
-    force_chain(new_editor_address);
-    slice response_destination = in_msg_body~load_msg_addr();
-    in_msg_body~load_int(1); ;; this nft don't use custom_payload
-    int forward_amount = in_msg_body~load_coins();
-
-    int rest_amount = my_balance - min_tons_for_storage();
-    if (forward_amount) {
-      rest_amount -= (forward_amount + fwd_fees);
-    }
-    int need_response = response_destination.preload_uint(2) != 0; ;; if NOT addr_none: 00
-    if (need_response) {
-      rest_amount -= fwd_fees;
-    }
-
-    throw_unless(402, rest_amount >= 0); ;; base nft spends fixed amount of gas, will not check for response
-
-    if (forward_amount) {
-      send_msg(new_editor_address, forward_amount, op::editorship_assigned(), query_id, begin_cell().store_slice(editor_address).store_slice(in_msg_body), 1);  ;; paying fees, revert on errors
-    }
-    if (need_response) {
-      force_chain(response_destination);
-      send_msg(response_destination, rest_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
-    }
-
-    store_data(index, collection_address, owner_address, content, new_editor_address);
+    store_data(index, collection_address, new_owner_address, content, domain, auction, last_fill_up_time);
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    if (in_msg_body.slice_empty?()) { ;; ignore empty messages
-        return ();
-    }
-
     slice cs = in_msg_full.begin_parse();
     int flags = cs~load_uint(4);
 
@@ -145,32 +138,140 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     cs~load_coins(); ;; skip ihr_fee
     int fwd_fee = cs~load_coins(); ;; we use message fwd_fee for estimation of forward_payload costs
 
-    (int init?, int index, slice collection_address, slice owner_address, cell content, slice editor_address) = load_data();
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
     if (~ init?) {
-      throw_unless(405, equal_slices(collection_address, sender_address));
-      store_data(index, collection_address, in_msg_body~load_msg_addr(), in_msg_body~load_ref(), in_msg_body~load_msg_addr());
-      return ();
+        throw_unless(405, equal_slices(collection_address, sender_address));
+        slice from_address = in_msg_body~load_msg_addr();
+        cell domain = in_msg_body~load_ref();
+
+        cell content_dict = new_dict();
+        content_dict~udict_set(256, "name"H, pack_string(domain.begin_parse(), ".ton"));
+        content_dict~udict_set(256, "description"H, pack_string("TON Domain", null()));
+        content_dict~udict_set(256, "image"H, pack_string("https://dns.ton.org/icon.png#", domain.begin_parse()));
+        cell content = begin_cell().store_uint(0, 8).store_dict(content_dict).end_cell();
+        int duration = auction_duration;
+        cell config_cell = config_param(dns_config_id);
+        if (~ cell_null?(config_cell)) {
+            slice cs = config_cell.begin_parse();
+            cell config = cs~load_dict();
+            (slice config_value, int found) = config.udict_get?(256, 0);
+            if (found) {
+                duration = config_value~load_uint(32);
+            }
+        }
+        int auction_end_time = now() + duration;
+        store_data(index, collection_address, zero_address(), content, domain, pack_auction(from_address, msg_value, auction_end_time), now());
+        return ();
     }
 
-    int op = in_msg_body~load_uint(32);
+    if (init? & equal_slices(collection_address, sender_address)) {
+        slice from_address = in_msg_body~load_msg_addr();
+        send_msg(from_address, 0, 0, 0, null(), 64); ;; carry all the remaining value of the inbound message
+        return ();
+    }
+
+    int op = in_msg_body.slice_empty?() ? 0 : in_msg_body~load_uint(32);
+
+    (slice max_bid_address, int max_bid_amount, int auction_end_time) = unpack_auction(auction);
+
+    int auction_complete = now() > auction_end_time;
+
+    if (op == 0) {
+        if (auction_complete) {
+            throw_unless(406, equal_slices(sender_address, owner_address)); ;; only owner can fill-up balance, prevent coins lost right after the auction
+            last_fill_up_time = now();
+            store_data(index, collection_address, owner_address, content, domain, auction, last_fill_up_time);
+        } else {
+            throw_unless(407, msg_value > muldiv(max_bid_amount, 105, 100)); ;; 5% greater then previous bid
+            int amount_to_send = (max_bid_amount > my_balance - min_tons_for_storage()) ? (my_balance - min_tons_for_storage()) : max_bid_amount;
+            if (amount_to_send >= 0) {
+                send_msg(max_bid_address, amount_to_send, 0, 0, null(), 0);
+            }
+            max_bid_amount = msg_value;
+            max_bid_address = sender_address;
+            int delta_time = auction_prolongation - (auction_end_time - now());
+            if (delta_time > 0) {
+                auction_end_time += delta_time;
+            }
+            store_data(index, collection_address, owner_address, content, domain, pack_auction(max_bid_address, max_bid_amount, auction_end_time), now());
+        }
+
+        return ();
+    }
+
     int query_id = in_msg_body~load_uint(64);
 
+    if ((auction_complete) & (~ cell_null?(auction))) {
+        int balance_without_msg = my_balance - msg_value;
+        int amount_to_send = (max_bid_amount > balance_without_msg - min_tons_for_storage()) ? (balance_without_msg - min_tons_for_storage()) : max_bid_amount;
+        if (amount_to_send >= 0) {
+            send_msg(collection_address, amount_to_send, 7, 0, null(), 2); ;; ignore errors
+        }
+        owner_address = max_bid_address;
+        auction = null();
+        my_balance -= amount_to_send;
+    }
+
+    if ((now() - last_fill_up_time > one_year) & (cell_null?(auction))) {
+        max_bid_address = owner_address;
+        max_bid_amount = my_balance;
+        owner_address = zero_address();
+        auction_end_time = now() + auction_duration; ;; 1 week
+        auction = pack_auction(max_bid_address, max_bid_amount, auction_end_time);
+        store_data(index, collection_address, owner_address, content, domain, auction, now());
+        return ();
+    }
+
     if (op == op::transfer()) {
-      transfer_ownership(my_balance, index, collection_address, owner_address, content, editor_address, sender_address, query_id, in_msg_body, fwd_fee);
-      return ();
+        throw_unless(401, equal_slices(sender_address, owner_address));
+        transfer_ownership(my_balance, index, collection_address, owner_address, content, sender_address, query_id, in_msg_body, fwd_fee, domain, auction, last_fill_up_time);
+        return ();
     }
     if (op == op::get_static_data()) {
-      send_msg(sender_address, 0, op::report_static_data(), query_id, begin_cell().store_uint(index, 256).store_slice(collection_address), 64);  ;; carry all the remaining value of the inbound message
-      return ();
+        send_msg(sender_address, 0, op::report_static_data(), query_id, begin_cell().store_uint(index, 256).store_slice(collection_address), 64); ;; carry all the remaining value of the inbound message
+        return ();
     }
-    if (op == op::transfer_editorship()) {
-      transfer_editorship(my_balance, index, collection_address, owner_address, content, editor_address, sender_address, query_id, in_msg_body, fwd_fee);
-      return ();
+    if (op == op::edit_content()) { ;; owner can change content and dns records
+        throw_unless(410, equal_slices(sender_address, owner_address));
+        store_data(index, collection_address, owner_address, in_msg_body~load_ref(), domain, auction, now());
+        return ();
     }
-    if (op == op::edit_content()) {
-      throw_unless(410, equal_slices(sender_address, editor_address));
-      store_data(index, collection_address, owner_address, in_msg_body~load_ref(), editor_address);
-      return ();
+    if (op == 10) { ;; change dns record
+        throw_unless(411, equal_slices(sender_address, owner_address));
+        int key = in_msg_body~load_uint(256);
+        int has_value = in_msg_body.slice_refs() > 0;
+
+        slice cs = content.begin_parse();
+        throw_unless(412, cs~load_uint(8) == 0); ;; data onchain tag
+        cell keyvalue_map = cs~load_dict();
+
+        if (has_value) {
+            cell value = in_msg_body~load_ref();
+
+            keyvalue_map~udict_set(256, key, value.begin_parse());
+        } else {
+            keyvalue_map~udict_delete?(256, key);
+        }
+
+        content = begin_cell().store_uint(0, 8).store_dict(keyvalue_map).end_cell();
+
+        store_data(index, collection_address, owner_address, content, domain, auction, last_fill_up_time);
+        return ();
+    }
+    if (op == 11) {
+        slice cs = config_param(dns_config_id).begin_parse();
+        cell config = cs~load_dict();
+        (slice config_value, int found) = config.udict_get?(256, index);
+        if (found) {
+            int config_op = config_value~load_uint(8);
+            if (config_op == 0) { ;; transfer
+                transfer_ownership(my_balance, index, collection_address, owner_address, content, sender_address, query_id, config_value, fwd_fee, domain, auction, last_fill_up_time);
+            }
+            if (config_op == 1) { ;; destroy
+                send_msg(collection_address, 0, 0, 0, null(), 128 + 32);
+            }
+        }
+        return ();
     }
     throw(0xffff);
 }
@@ -180,11 +281,58 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 ;;
 
 (int, int, slice, slice, cell) get_nft_data() method_id {
-  (int init?, int index, slice collection_address, slice owner_address, cell content, _) = load_data();
-  return (init?, index, collection_address, owner_address, content);
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
+    return (init?, index, collection_address, owner_address, content);
 }
 
-slice get_editor() method_id {
-  (_, _, _, _, _, slice editor_address) = load_data();
-  return editor_address;
+slice get_domain() method_id {
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
+    return domain.begin_parse();
+}
+
+(slice, int, int) get_auction_info() method_id {
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
+    return unpack_auction(auction);
+}
+
+int get_last_fill_up_time() method_id {
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
+    return last_fill_up_time;
+}
+
+(int, cell) dnsresolve(slice subdomain, int category) method_id {
+    int subdomain_bits = slice_bits(subdomain);
+
+    throw_unless(70, mod(subdomain_bits, 8) == 0);
+
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell my_domain_cell, cell auction, int last_fill_up_time) = load_data();
+
+    slice cs = content.begin_parse();
+    throw_unless(412, cs~load_uint(8) == 0); ;; data onchain tag
+    cell keyvalue_map = cs~load_dict();
+
+    int starts_with_zero_byte = subdomain.preload_int(8) == 0;
+    throw_unless(413, starts_with_zero_byte);
+
+    if (subdomain_bits == 8) { ;; "." requested
+        if (category == 0) { ;;  all categories are requested
+            return (8, keyvalue_map);
+        } else {
+            (slice value, int found) = keyvalue_map.udict_get?(256, category);
+            if (found) {
+                return (8, begin_cell().store_slice(value).end_cell());
+            } else {
+                return (8, null());
+            }
+        }
+    }
+
+    subdomain~load_uint(8);
+
+    (slice value, int found) = keyvalue_map.udict_get?(256, "dns_next_resolver"H);
+    if (found) {
+        return (8, begin_cell().store_slice(value).end_cell());
+    } else {
+        return (8, null());
+    }
 }
