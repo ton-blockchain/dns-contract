@@ -67,7 +67,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
         slice domain = read_domain_from_comment(in_msg_body);
         int len = slice_bits(domain);
         throw_unless(200, len > 3 * 8); ;; minimum 4 characters
-        throw_unless(201, len <= 126 * 8); ;; maxmimum 126 characteds
+        throw_unless(201, len <= 126 * 8); ;; maxmimum 126 characters
         throw_unless(202, mod(len, 8) == 0);
         throw_unless(203, check_domain_string(domain));
 
