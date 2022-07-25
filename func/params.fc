@@ -1,5 +1,3 @@
-const int dns_config_id = 80;
-
 int workchain() asm "0 PUSHINT";
 
 () force_chain(slice addr) impure {

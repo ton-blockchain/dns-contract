@@ -66,10 +66,14 @@ slice calculate_nft_item_address(int wc, cell state_init) {
     if (op == 0) { ;; deploy new nft
         slice domain = read_domain_from_comment(in_msg_body);
         int len = slice_bits(domain);
+        int now_time = now();
+        throw_unless(199, now_time > auction_start_time); ;; start of auction
         throw_unless(200, len > 3 * 8); ;; minimum 4 characters
         throw_unless(201, len <= 126 * 8); ;; maxmimum 126 characteds
         throw_unless(202, mod(len, 8) == 0);
         throw_unless(203, check_domain_string(domain));
+        int min_price = get_min_price(len, now_time);
+        throw_unless(204, msg_value >= min_price);
 
         int item_index = slice_hash(domain);
 
@@ -118,7 +122,7 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
     int starts_with_zero_byte = subdomain.preload_int(8) == 0;
 
     if (starts_with_zero_byte & (slice_bits(subdomain) == 8)) { ;; "." requested
-        return (8, null());
+        return (8, null());  ;; resolved but no dns-records
     }
     if (starts_with_zero_byte) {
         subdomain~load_uint(8);
@@ -128,7 +132,7 @@ cell get_nft_content(int index, cell individual_nft_content) method_id {
     slice top_subdomain = subdomain~load_bits(top_subdomain_bits);
     int item_index = slice_hash(top_subdomain);
     cell result = begin_cell()
-            .store_uint(0xba93, 16) ;; dns_next_resolver prefix - https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
+            .store_uint(dns_next_resolver_prefix, 16)
             .store_slice(get_nft_address_by_index(item_index))
             .end_cell();
     return (top_subdomain_bits + (starts_with_zero_byte ? 8 : 0), result);

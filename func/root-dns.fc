@@ -1,7 +1,7 @@
 ;; Root DNS resolver in masterchain
 
 slice load_data() inline {
-    return get_data().begin_parse(); ;; address of ".ton" dns resolver in basechain
+    return get_data().begin_parse(); ;; address of ".ton" dns resolver smart contract in basechain
 }
 
 (int, cell) dnsresolve(slice subdomain, int category) method_id {
@@ -10,7 +10,7 @@ slice load_data() inline {
     int starts_with_zero_byte = subdomain.preload_int(8) == 0;
 
     if (starts_with_zero_byte & (slice_bits(subdomain) == 8)) { ;; "." requested
-        return (8, null());
+        return (8, null()); ;; resolved but no dns-records
     }
     if (starts_with_zero_byte) {
         subdomain~load_uint(8);
@@ -27,7 +27,7 @@ slice load_data() inline {
     }
 
     cell result = begin_cell()
-            .store_uint(0xba93, 16) ;; dns_next_resolver prefix - https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
+            .store_uint(dns_next_resolver_prefix, 16)
             .store_slice(load_data())
             .end_cell();
 

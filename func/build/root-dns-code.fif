@@ -4,6 +4,8 @@ PROGRAM{
   DECLPROC get_top_domain_bits
   DECLPROC read_domain_from_comment
   DECLPROC check_domain_string
+  DECLPROC get_min_price_config
+  DECLPROC get_min_price
   DECLPROC load_data
   123660 DECLMETHOD dnsresolve
   DECLPROC recv_internal
@@ -113,6 +115,86 @@ PROGRAM{
     }>	//  domain i len
     1 2 BLKDROP2	//  i len
     EQUAL	//  _40
+  }>
+  get_min_price_config PROC:<{
+    //  domain_char_count
+    DUP	//  domain_char_count domain_char_count
+    4 EQINT	//  domain_char_count _2
+    IFJMP:<{	//  domain_char_count
+      DROP	// 
+      1000 PUSHINT	//  _3=1000
+      100 PUSHINT	//  _3=1000 _4=100
+    }>	//  domain_char_count
+    DUP	//  domain_char_count domain_char_count
+    5 EQINT	//  domain_char_count _6
+    IFJMP:<{	//  domain_char_count
+      DROP	// 
+      500 PUSHINT	//  _7=500
+      50 PUSHINT	//  _7=500 _8=50
+    }>	//  domain_char_count
+    DUP	//  domain_char_count domain_char_count
+    6 EQINT	//  domain_char_count _10
+    IFJMP:<{	//  domain_char_count
+      DROP	// 
+      400 PUSHINT	//  _11=400
+      40 PUSHINT	//  _11=400 _12=40
+    }>	//  domain_char_count
+    DUP	//  domain_char_count domain_char_count
+    7 EQINT	//  domain_char_count _14
+    IFJMP:<{	//  domain_char_count
+      DROP	// 
+      300 PUSHINT	//  _15=300
+      30 PUSHINT	//  _15=300 _16=30
+    }>	//  domain_char_count
+    DUP	//  domain_char_count domain_char_count
+    8 EQINT	//  domain_char_count _18
+    IFJMP:<{	//  domain_char_count
+      DROP	// 
+      200 PUSHINT	//  _19=200
+      20 PUSHINT	//  _19=200 _20=20
+    }>	//  domain_char_count
+    DUP	//  domain_char_count domain_char_count
+    9 EQINT	//  domain_char_count _22
+    IFJMP:<{	//  domain_char_count
+      DROP	// 
+      100 PUSHINT	//  _23=100
+      10 PUSHINT	//  _23=100 _24=10
+    }>	//  domain_char_count
+    10 EQINT	//  _26
+    IFJMP:<{	// 
+      50 PUSHINT	//  _27=50
+      5 PUSHINT	//  _27=50 _28=5
+    }>	// 
+    10 PUSHINT	//  _29=10
+    1 PUSHINT	//  _29=10 _30=1
+  }>
+  get_min_price PROC:<{
+    //  domain_bits_length now_time
+    SWAP	//  now_time domain_bits_length
+    3 RSHIFT#	//  now_time _5
+    get_min_price_config CALLDICT	//  now_time start_min_price end_min_price
+    SWAP
+    1000000000 PUSHINT	//  now_time end_min_price start_min_price _7=1000000000
+    MUL	//  now_time end_min_price start_min_price
+    SWAP
+    1000000000 PUSHINT	//  now_time start_min_price end_min_price _9=1000000000
+    MUL	//  now_time start_min_price end_min_price
+    s0 s2 XCHG
+    1658151330 PUSHINT	//  end_min_price start_min_price now_time _12=1658151330
+    SUB	//  end_min_price start_min_price seconds
+    2592000 PUSHINT	//  end_min_price start_min_price seconds _15=2592000
+    DIV	//  end_min_price start_min_price months
+    DUP	//  end_min_price start_min_price months months
+    22 GTINT	//  end_min_price start_min_price months _18
+    IFJMP:<{	//  end_min_price start_min_price months
+      2DROP	//  end_min_price
+    }>	//  end_min_price start_min_price months
+    1 2 BLKDROP2	//  start_min_price months
+    REPEAT:<{	//  start_min_price
+      90 MULCONST	//  _20
+      100 PUSHINT	//  _20 _21=100
+      DIV	//  start_min_price
+    }>
   }>
   load_data PROC:<{
     // 

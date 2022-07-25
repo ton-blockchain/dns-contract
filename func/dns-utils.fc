@@ -1,3 +1,11 @@
+const int one_month = 2592000; ;; 1 month in seconds = 60 * 60 * 24 * 30
+const int one_year = 31622400; ;; 1 year in seconds = 60 * 60 * 24 * 366
+const int auction_start_time = 1658151330; ;; GMT: Monday, 18 July 2022 г., 13:35:30
+const int one_ton = 1000000000;
+const int dns_next_resolver_prefix = 0xba93; ;; dns_next_resolver prefix - https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
+
+const int dns_config_id = 80; ;; dns black list config param
+
 int mod(int x, int y) asm "MOD";
 
 ;; "ton\0test\0" -> "ton"
@@ -49,4 +57,44 @@ int check_domain_string(slice domain) {
         }
     } until (need_break);
     return i == len;
+}
+
+(int, int) get_min_price_config(int domain_char_count) {
+    if (domain_char_count == 4) {
+        return (1000, 100);
+    }
+    if (domain_char_count == 5) {
+        return (500, 50);
+    }
+    if (domain_char_count == 6) {
+        return (400, 40);
+    }
+    if (domain_char_count == 7) {
+        return (300, 30);
+    }
+    if (domain_char_count == 8) {
+        return (200, 20);
+    }
+    if (domain_char_count == 9) {
+        return (100, 10);
+    }
+    if (domain_char_count == 10) {
+        return (50, 5);
+    }
+    return (10, 1);
+}
+
+int get_min_price(int domain_bits_length, int now_time) {
+    (int start_min_price, int end_min_price) = get_min_price_config(domain_bits_length / 8);
+    start_min_price *= one_ton;
+    end_min_price *= one_ton;
+    int seconds = now_time - auction_start_time;
+    int months = seconds / one_month;
+    if (months > 22) {
+        return end_min_price;
+    }
+    repeat (months) {
+        start_min_price = start_min_price * 90 / 100;
+    }
+    return start_min_price;
 }

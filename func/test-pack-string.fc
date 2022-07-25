@@ -1,0 +1,17 @@
+() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
+}
+
+cell pack_string(cell a_cell, cell b_cell) method_id {
+    slice a = a_cell.begin_parse();
+    slice b = b_cell.begin_parse();
+
+    builder result = begin_cell().store_uint(0, 8).store_slice(a); ;; https://github.com/ton-blockchain/TIPs/issues/64
+    if (~ null?(b)) {
+        if (slice_bits(a) + slice_bits(b) <= (1023 - 8)) {
+            result = result.store_slice(b);
+        } else {
+            result = result.store_ref(begin_cell().store_slice(b).end_cell());
+        }
+    }
+    return result.end_cell();
+}
