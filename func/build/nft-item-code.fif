@@ -17,6 +17,7 @@ PROGRAM{
   DECLPROC transfer_ownership
   DECLPROC recv_internal
   102351 DECLMETHOD get_nft_data
+  90228 DECLMETHOD get_editor
   119378 DECLMETHOD get_domain
   80697 DECLMETHOD get_auction_info
   91481 DECLMETHOD get_last_fill_up_time
@@ -586,7 +587,7 @@ PROGRAM{
         100 PUSHINT	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain max_bid_amount _137=105 _138=100
         MULDIV	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain _139
         s11 s(-1) PUXC	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain msg_value _139
-        GREATER	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain _140
+        GEQ	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain _140
         407 THROWIFNOT
         1000000000 PUSHINT	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain _143
         s10 s(-1) PUXC	//  msg_value my_balance max_bid_address sender_address max_bid_amount auction_end_time index collection_address owner_address content domain my_balance _143
@@ -604,7 +605,7 @@ PROGRAM{
           s0 s5 XCHG	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address _146
         }>	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send
         DUP	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send amount_to_send
-        -1 GTINT	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send _150
+        0 GTINT	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send _150
         IF:<{	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send
           0 PUSHINT	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send _151=0
           DUP	//  msg_value content max_bid_address sender_address domain auction_end_time index collection_address owner_address amount_to_send _151=0 _152=0
@@ -665,7 +666,7 @@ PROGRAM{
         s0 s5 XCHG	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op _180
       }>	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send
       DUP	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send amount_to_send
-      -1 GTINT	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send _184
+      0 GTINT	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send _184
       IF:<{	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send
         7 PUSHINT	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send _185=7
         0 PUSHINT	//  msg_value my_balance in_msg_body sender_address fwd_fee last_fill_up_time index collection_address max_bid_address content domain query_id op amount_to_send _185=7 _186=0
@@ -845,7 +846,7 @@ PROGRAM{
       1000000000 PUSHINT	//  max_bid_address index collection_address owner_address content domain balance_without_msg _287
       SUB	//  max_bid_address index collection_address owner_address content domain amount_to_send
       DUP	//  max_bid_address index collection_address owner_address content domain amount_to_send amount_to_send
-      -1 GTINT	//  max_bid_address index collection_address owner_address content domain amount_to_send _290
+      0 GTINT	//  max_bid_address index collection_address owner_address content domain amount_to_send _290
       IF:<{	//  max_bid_address index collection_address owner_address content domain amount_to_send
         0 PUSHINT	//  max_bid_address index collection_address owner_address content domain amount_to_send _291=0
         DUP	//  max_bid_address index collection_address owner_address content domain amount_to_send _291=0 _292=0
@@ -901,6 +902,12 @@ PROGRAM{
     // 
     load_data CALLDICT	//  _9 _10 _11 _12 _13 _14 _15 _16
     3 BLKDROP	//  init? index collection_address owner_address content
+  }>
+  get_editor PROC:<{
+    // 
+    load_data CALLDICT	//  _9 _10 _11 _12 _13 _14 _15 _16
+    s4 s7 XCHG
+    7 BLKDROP	//  owner_address
   }>
   get_domain PROC:<{
     // 

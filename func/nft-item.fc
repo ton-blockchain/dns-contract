@@ -176,9 +176,9 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
             last_fill_up_time = now();
             store_data(index, collection_address, owner_address, content, domain, auction, last_fill_up_time);
         } else {
-            throw_unless(407, msg_value > muldiv(max_bid_amount, 105, 100)); ;; 5% greater then previous bid
+            throw_unless(407, msg_value >= muldiv(max_bid_amount, 105, 100)); ;; 5% greater then previous bid
             int amount_to_send = (max_bid_amount > my_balance - min_tons_for_storage()) ? (my_balance - min_tons_for_storage()) : max_bid_amount;
-            if (amount_to_send >= 0) {
+            if (amount_to_send > 0) {
                 send_msg(max_bid_address, amount_to_send, 0, 0, null(), 0);
             }
             max_bid_amount = msg_value;
@@ -198,7 +198,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
     if ((auction_complete) & (~ cell_null?(auction))) {
         int balance_without_msg = my_balance - msg_value;
         int amount_to_send = (max_bid_amount > balance_without_msg - min_tons_for_storage()) ? (balance_without_msg - min_tons_for_storage()) : max_bid_amount;
-        if (amount_to_send >= 0) {
+        if (amount_to_send > 0) {
             send_msg(collection_address, amount_to_send, 7, 0, null(), 2); ;; ignore errors
         }
         owner_address = max_bid_address;
@@ -248,7 +248,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
                 transfer_ownership(my_balance, index, collection_address, owner_address, content, sender_address, query_id, config_value, fwd_fee, domain, auction, last_fill_up_time);
             }
             if (config_op == 1) { ;; destroy
-                send_msg(collection_address, 0, 0, 0, null(), 128 + 32);
+                send_msg(collection_address, 0, 0, 0, null(), 128 + 32); ;; carry all the remaining balance + destroy
             }
         }
         return ();
@@ -257,7 +257,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
         max_bid_address = owner_address;
         int balance_without_msg = my_balance - msg_value;
         int amount_to_send = balance_without_msg - min_tons_for_storage();
-        if (amount_to_send >= 0) {
+        if (amount_to_send > 0) {
             send_msg(owner_address, amount_to_send, 0, 0, null(), 2); ;; ignore errors
         }
         max_bid_amount = get_min_price(domain.begin_parse().slice_bits(), now());
@@ -281,6 +281,11 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
 (int, int, slice, slice, cell) get_nft_data() method_id {
     (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
     return (init?, index, collection_address, owner_address, content);
+}
+
+slice get_editor() method_id {
+    (int init?, int index, slice collection_address, slice owner_address, cell content, cell domain, cell auction, int last_fill_up_time) = load_data();
+    return owner_address;
 }
 
 slice get_domain() method_id {
