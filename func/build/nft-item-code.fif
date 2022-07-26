@@ -2,12 +2,12 @@
 // automatically generated from `stdlib.fc` `params.fc` `op-codes.fc` `dns-utils.fc` `nft-item.fc` 
 PROGRAM{
   DECLPROC force_chain
+  DECLPROC zero_address
   DECLPROC get_top_domain_bits
   DECLPROC read_domain_from_comment
   DECLPROC check_domain_string
   DECLPROC get_min_price_config
   DECLPROC get_min_price
-  DECLPROC zero_address
   DECLPROC pack_string
   DECLPROC unpack_auction
   DECLPROC pack_auction
@@ -28,6 +28,14 @@ PROGRAM{
     0 PUSHINT	//  wc _5
     EQUAL	//  _6
     333 THROWIFNOT
+  }>
+  zero_address PROC:<{
+    // 
+    0 PUSHINT	//  _0=0
+    NEWC	//  _0=0 _1
+    2 STU	//  _3
+    ENDC	//  _4
+    CTOS	//  _5
   }>
   get_top_domain_bits PROC:<{
     //  domain
@@ -215,14 +223,6 @@ PROGRAM{
       100 PUSHINT	//  _20 _21=100
       DIV	//  start_min_price
     }>
-  }>
-  zero_address PROC:<{
-    // 
-    0 PUSHINT	//  _0=0
-    NEWC	//  _0=0 _1
-    2 STU	//  _3
-    ENDC	//  _4
-    CTOS	//  _5
   }>
   pack_string PROC:<{
     //  a b

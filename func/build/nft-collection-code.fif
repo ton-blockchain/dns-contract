@@ -2,6 +2,7 @@
 // automatically generated from `stdlib.fc` `params.fc` `op-codes.fc` `dns-utils.fc` `nft-collection.fc` 
 PROGRAM{
   DECLPROC force_chain
+  DECLPROC zero_address
   DECLPROC get_top_domain_bits
   DECLPROC read_domain_from_comment
   DECLPROC check_domain_string
@@ -24,6 +25,14 @@ PROGRAM{
     0 PUSHINT	//  wc _5
     EQUAL	//  _6
     333 THROWIFNOT
+  }>
+  zero_address PROC:<{
+    // 
+    0 PUSHINT	//  _0=0
+    NEWC	//  _0=0 _1
+    2 STU	//  _3
+    ENDC	//  _4
+    CTOS	//  _5
   }>
   get_top_domain_bits PROC:<{
     //  domain
@@ -308,29 +317,31 @@ PROGRAM{
     0 EQINT	//  msg_value sender_address op in_msg_body nft_item_code _25
     IFJMP:<{	//  msg_value sender_address op in_msg_body nft_item_code
       s2 POP	//  msg_value sender_address nft_item_code in_msg_body
-      read_domain_from_comment CALLDICT	//  msg_value sender_address nft_item_code domain
-      DUP	//  msg_value sender_address nft_item_code domain domain
-      SBITS	//  msg_value sender_address nft_item_code domain len
-      NOW	//  msg_value sender_address nft_item_code domain len now_time
+      NOW	//  msg_value sender_address nft_item_code in_msg_body now_time
       DUP
-      1658151330 PUSHINT	//  msg_value sender_address nft_item_code domain len now_time now_time _33=1658151330
-      GREATER	//  msg_value sender_address nft_item_code domain len now_time _34
+      1658151330 PUSHINT	//  msg_value sender_address nft_item_code in_msg_body now_time now_time _29=1658151330
+      GREATER	//  msg_value sender_address nft_item_code in_msg_body now_time _30
       199 THROWIFNOT
-      OVER	//  msg_value sender_address nft_item_code domain len now_time len
-      24 GTINT	//  msg_value sender_address nft_item_code domain len now_time _40
+      SWAP	//  msg_value sender_address nft_item_code now_time in_msg_body
+      read_domain_from_comment CALLDICT	//  msg_value sender_address nft_item_code now_time domain
+      DUP	//  msg_value sender_address nft_item_code now_time domain domain
+      SBITS	//  msg_value sender_address nft_item_code now_time domain len
+      DUP	//  msg_value sender_address nft_item_code now_time domain len len
+      24 GTINT	//  msg_value sender_address nft_item_code now_time domain len _40
       200 THROWIFNOT
-      OVER
-      1008 PUSHINT	//  msg_value sender_address nft_item_code domain len now_time len _45
-      LEQ	//  msg_value sender_address nft_item_code domain len now_time _46
+      DUP
+      1008 PUSHINT	//  msg_value sender_address nft_item_code now_time domain len len _45
+      LEQ	//  msg_value sender_address nft_item_code now_time domain len _46
       201 THROWIFNOT
-      OVER
-      8 PUSHINT	//  msg_value sender_address nft_item_code domain len now_time len _49=8
-      MOD	//  msg_value sender_address nft_item_code domain len now_time _50
-      0 EQINT	//  msg_value sender_address nft_item_code domain len now_time _52
+      DUP
+      8 PUSHINT	//  msg_value sender_address nft_item_code now_time domain len len _49=8
+      MOD	//  msg_value sender_address nft_item_code now_time domain len _50
+      0 EQINT	//  msg_value sender_address nft_item_code now_time domain len _52
       202 THROWIFNOT
-      s2 PUSH	//  msg_value sender_address nft_item_code domain len now_time domain
-      check_domain_string CALLDICT	//  msg_value sender_address nft_item_code domain len now_time _55
+      OVER	//  msg_value sender_address nft_item_code now_time domain len domain
+      check_domain_string CALLDICT	//  msg_value sender_address nft_item_code now_time domain len _55
       203 THROWIFNOT
+      ROT	//  msg_value sender_address nft_item_code domain len now_time
       get_min_price CALLDICT	//  msg_value sender_address nft_item_code domain min_price
       s1 s4 XCHG	//  domain sender_address nft_item_code msg_value min_price
       GEQ	//  domain sender_address nft_item_code _60
@@ -380,8 +391,8 @@ PROGRAM{
     load_data INLINECALLDICT	//  _5 _6
     DROP	//  content
     0 PUSHINT	//  content _3=0
-    SWAP
-    PUSHNULL	//  _3=0 content _4
+    zero_address CALLDICT	//  content _3=0 _4
+    s1 s2 XCHG	//  _3=0 content _4
   }>
   get_nft_address_by_index PROC:<{
     //  index

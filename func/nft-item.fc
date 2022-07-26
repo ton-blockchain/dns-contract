@@ -6,10 +6,6 @@ const auction_start_duration = 300; ;; 5 min (in mainnet 1 week)
 const auction_end_duration = 60; ;; 1 min (in mainnet 1 hour)
 const auction_prolongation = 10; ;; 10 sec (in mainnet 1 hour)
 
-slice zero_address() {
-    return begin_cell().store_uint(0, 2).end_cell().begin_parse();
-}
-
 cell pack_string(slice a, slice b) {
     builder result = begin_cell().store_uint(0, 8).store_slice(a); ;; https://github.com/ton-blockchain/TIPs/issues/64
     if (~ null?(b)) {

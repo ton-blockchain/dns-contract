@@ -1,6 +1,7 @@
 "Asm.fif" include
 // automatically generated from `stdlib.fc` `dns-utils.fc` `root-dns.fc` 
 PROGRAM{
+  DECLPROC zero_address
   DECLPROC get_top_domain_bits
   DECLPROC read_domain_from_comment
   DECLPROC check_domain_string
@@ -9,6 +10,14 @@ PROGRAM{
   DECLPROC load_data
   123660 DECLMETHOD dnsresolve
   DECLPROC recv_internal
+  zero_address PROC:<{
+    // 
+    0 PUSHINT	//  _0=0
+    NEWC	//  _0=0 _1
+    2 STU	//  _3
+    ENDC	//  _4
+    CTOS	//  _5
+  }>
   get_top_domain_bits PROC:<{
     //  domain
     0 PUSHINT	//  domain i=0

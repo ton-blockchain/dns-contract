@@ -64,10 +64,10 @@ slice calculate_nft_item_address(int wc, cell state_init) {
     var (content, nft_item_code) = load_data();
 
     if (op == 0) { ;; deploy new nft
-        slice domain = read_domain_from_comment(in_msg_body);
-        int len = slice_bits(domain);
         int now_time = now();
         throw_unless(199, now_time > auction_start_time); ;; start of auction
+        slice domain = read_domain_from_comment(in_msg_body);
+        int len = slice_bits(domain);
         throw_unless(200, len > 3 * 8); ;; minimum 4 characters
         throw_unless(201, len <= 126 * 8); ;; maxmimum 126 characteds
         throw_unless(202, mod(len, 8) == 0);
@@ -103,7 +103,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
 
 (int, cell, slice) get_collection_data() method_id {
     var (content, nft_item_code) = load_data();
-    return (0, content, null());
+    return (0, content, zero_address());
 }
 
 slice get_nft_address_by_index(int index) method_id {

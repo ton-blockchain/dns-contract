@@ -8,6 +8,10 @@ const int dns_config_id = 80; ;; dns black list config param
 
 int mod(int x, int y) asm "MOD";
 
+slice zero_address() {
+    return begin_cell().store_uint(0, 2).end_cell().begin_parse();
+}
+
 ;; "ton\0test\0" -> "ton"
 int get_top_domain_bits(slice domain) {
     int i = 0;
