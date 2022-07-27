@@ -56,8 +56,8 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                     "amount": 998 * TON,
                     "sendMode": 2,
                     "body": [
-                        "uint32", 0, // op
-                        "uint64", 0, // query_id
+                        "uint32", 0xd53276db, // op
+                        "uint64", 123, // query_id
                     ],
                 },
             ]
