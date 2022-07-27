@@ -45,7 +45,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
             "contract_balance": 1000 * TON,
             "amount": 1 * TON,
             "body": [
-                "uint32", 123,
+                "uint32", 12,
                 "uint64", 123,
             ],
             "new_data": makeStorageItem2({}),

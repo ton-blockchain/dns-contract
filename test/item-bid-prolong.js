@@ -44,7 +44,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                     "type": "Internal",
                     "to": "0:" + OWNER_ADDRESS,
                     "amount": 999 * TON,
-                    "sendMode": 0,
+                    "sendMode": 1,
                     "body": [
                         "uint32", 0, // op
                         "uint64", 0, // query_id
