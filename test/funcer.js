@@ -162,7 +162,7 @@ b> constant in_msg${i}
 0                    // msgs_sent
 ${inMsg.time || 1628090356}           // unixtime
 1                    // block_lt
-1                    // trans_lt
+999                    // trans_lt
 239                  // randseed
 ${contractBalance} null pair // balance_remaining
 contract_address     // myself

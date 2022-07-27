@@ -34,7 +34,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
             "sender": '0:' + COLLECTION_ADDRESS,
             "amount": 10 * TON,
             "body": [
-                'uint32', 7
+                'uint32', 0x370fec51
             ],
             "new_data": storage(),
             "exit_code": 0

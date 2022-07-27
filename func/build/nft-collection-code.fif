@@ -380,7 +380,8 @@ PROGRAM{
     }>	//  msg_value sender_address op in_msg_body nft_item_code
     s2 s4 XCHG
     4 BLKDROP	//  op
-    7 EQINT	//  _90
+    923790417 PUSHINT	//  op _89=923790417
+    EQUAL	//  _90
     IFJMP:<{	// 
     }>	// 
     16 PUSHPOW2DEC	//  _91=65535
@@ -390,9 +391,9 @@ PROGRAM{
     // 
     load_data INLINECALLDICT	//  _5 _6
     DROP	//  content
-    0 PUSHINT	//  content _3=0
-    zero_address CALLDICT	//  content _3=0 _4
-    s1 s2 XCHG	//  _3=0 content _4
+    -1 PUSHINT	//  content _3=-1
+    zero_address CALLDICT	//  content _3=-1 _4
+    s1 s2 XCHG	//  _3=-1 content _4
   }>
   get_nft_address_by_index PROC:<{
     //  index

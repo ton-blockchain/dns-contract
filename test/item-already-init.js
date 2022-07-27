@@ -27,7 +27,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                     "sendMode": 64,
                     "body": [
                         "uint32", 0, // op
-                        "uint64", 0, // query_id
+                        "uint64", 999, // query_id
                     ],
                 }
             ]

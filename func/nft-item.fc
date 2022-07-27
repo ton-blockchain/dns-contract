@@ -160,7 +160,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
 
     if (init? & equal_slices(collection_address, sender_address)) {
         slice from_address = in_msg_body~load_msg_addr();
-        send_msg(from_address, 0, 0, 0, null(), 64); ;; carry all the remaining value of the inbound message
+        send_msg(from_address, 0, 0, cur_lt(), null(), 64); ;; carry all the remaining value of the inbound message
         return ();
     }
 
@@ -179,7 +179,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
             throw_unless(407, msg_value >= muldiv(max_bid_amount, 105, 100)); ;; 5% greater then previous bid
             int amount_to_send = (max_bid_amount > my_balance - min_tons_for_storage()) ? (my_balance - min_tons_for_storage()) : max_bid_amount;
             if (amount_to_send > 0) {
-                send_msg(max_bid_address, amount_to_send, 0, 0, null(), 1); ;; pay transfer fees separately
+                send_msg(max_bid_address, amount_to_send, op::outbid_notification, cur_lt(), null(), 1); ;; pay transfer fees separately
             }
             max_bid_amount = msg_value;
             max_bid_address = sender_address;
@@ -199,7 +199,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
         int balance_without_msg = my_balance - msg_value;
         int amount_to_send = (max_bid_amount > balance_without_msg - min_tons_for_storage()) ? (balance_without_msg - min_tons_for_storage()) : max_bid_amount;
         if (amount_to_send > 0) {
-            send_msg(collection_address, amount_to_send, 7, query_id, null(), 2); ;; ignore errors
+            send_msg(collection_address, amount_to_send,  op::fill_up, query_id, null(), 2); ;; ignore errors
             my_balance -= amount_to_send;
         }
         owner_address = max_bid_address;
@@ -217,7 +217,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
         store_data(index, collection_address, owner_address, in_msg_body~load_ref(), domain, auction, now());
         return ();
     }
-    if (op == 10) { ;; change dns record
+    if (op == op::change_dns_record) { ;; change dns record
         throw_unless(411, equal_slices(sender_address, owner_address));
         int key = in_msg_body~load_uint(256);
         int has_value = in_msg_body.slice_refs() > 0;
@@ -239,7 +239,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
         store_data(index, collection_address, owner_address, content, domain, auction, now());
         return ();
     }
-    if (op == 11) { ;; governance
+    if (op == op::process_governance_decision) { ;; governance
         throw_unless(413, cell_null?(auction));
         slice cs = config_param(dns_config_id).begin_parse();
         cell config = cs~load_dict();
@@ -250,24 +250,26 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
                 transfer_ownership(my_balance, index, collection_address, owner_address, content, sender_address, query_id, config_value, fwd_fee, domain, auction);
             }
             if (config_op == 1) { ;; destroy
-                send_msg(collection_address, 0, 7, query_id, null(), 128 + 32); ;; carry all the remaining balance + destroy
+                send_msg(collection_address, 0,  op::fill_up, query_id, null(), 128 + 32); ;; carry all the remaining balance + destroy
             }
         }
         return ();
     }
-    if (op == 12) { ;; release domain
+    if (op == op::dns_balance_release) { ;; release domain
         if ((now() - last_fill_up_time > one_year) & (cell_null?(auction))) {
-            max_bid_address = owner_address;
+            int min_price = get_min_price(domain.begin_parse().slice_bits(), now());
+            throw_unless(407, msg_value >= min_price);
             int balance_without_msg = my_balance - msg_value;
             int amount_to_send = balance_without_msg - min_tons_for_storage();
             if (amount_to_send > 0) {
-                send_msg(owner_address, amount_to_send, op::excesses(), query_id, null(), 2); ;; ignore errors
+                send_msg(owner_address, amount_to_send, op::dns_balance_release, query_id, null(), 2); ;; ignore errors
             }
-            max_bid_amount = get_min_price(domain.begin_parse().slice_bits(), now());
-            owner_address = zero_address();
+            max_bid_amount = msg_value;
+            max_bid_address = sender_address;
             auction_end_time = now() + auction_start_duration; ;; always 1 week
+            owner_address = zero_address();
             auction = pack_auction(max_bid_address, max_bid_amount, auction_end_time);
-            store_data(index, collection_address, owner_address, content, domain, auction, last_fill_up_time);
+            store_data(index, collection_address, owner_address, content, domain, auction, now());
         }
         return ();
     }

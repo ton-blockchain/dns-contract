@@ -36,7 +36,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
             "contract_balance": 1000 * TON,
             "amount": 1 * TON,
             "body": [
-                "uint32", 11,
+                "uint32", 0x44beae41,
                 "uint64", 123,
             ],
             "new_data": makeStorageItemComplete({}),
@@ -47,7 +47,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                     "amount": 0,
                     "sendMode": 128 + 32,
                     "body": [
-                        "uint32", 7, // op
+                        "uint32", 0x370fec51, // op
                         "uint64", 123, // query_id
                     ],
                 },

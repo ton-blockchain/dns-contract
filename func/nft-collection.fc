@@ -93,7 +93,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
         return ();
     }
 
-    if (op == 7) { ;; just fill-up balance
+    if (op == op::fill_up) { ;; just fill-up balance
         return ();
     }
     throw(0xffff);
@@ -103,7 +103,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
 
 (int, cell, slice) get_collection_data() method_id {
     var (content, nft_item_code) = load_data();
-    return (0, content, zero_address());
+    return (-1, content, zero_address());
 }
 
 slice get_nft_address_by_index(int index) method_id {

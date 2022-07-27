@@ -61,7 +61,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
             "contract_balance": 1000 * TON,
             "amount": 1 * TON,
             "body": [
-                'uint32', 10,
+                'uint32', 0x4eb1f0f9,
                 'uint64', 123,
                 'uint256', '0xe8d44050873dba865aa7c170ab4cce64d90839a34dcfd6cf71d14e0205443b1b',
             ],
