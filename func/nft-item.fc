@@ -267,7 +267,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
             owner_address = zero_address();
             auction_end_time = now() + auction_start_duration; ;; always 1 week
             auction = pack_auction(max_bid_address, max_bid_amount, auction_end_time);
-            store_data(index, collection_address, owner_address, content, domain, auction, now());
+            store_data(index, collection_address, owner_address, content, domain, auction, last_fill_up_time);
         }
         return ();
     }
