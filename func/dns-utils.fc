@@ -100,7 +100,7 @@ int get_min_price(int domain_bits_length, int now_time) {
     end_min_price *= one_ton;
     int seconds = now_time - auction_start_time;
     int months = seconds / one_month;
-    if (months > 22) {
+    if (months > 21) {
         return end_min_price;
     }
     repeat (months) {

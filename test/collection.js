@@ -118,12 +118,14 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
         .concat(makeChars('yo', 200))
         .concat(makeChars('bob', 200))
         .concat(makeChars('bob', 200))
-        // 127 chars
+        // 127 chars alicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealiceal
         .concat(makeChars2('alicealicealicealicealicealicealicealicealiceali', 'cealicealicealicealicealicealicealicealicealicealicealicealicealicealicealiceal', 201))
-        // 126 chars
+        // 126 chars alicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicea
         .concat(makeChars2('alicealicealicealicealicealicealicealicealiceali', 'cealicealicealicealicealicealicealicealicealicealicealicealicealicealicealicea', 0))
         // 4 chars
         .concat(makeChars('appl', 0))
+        .concat(makeChars('alicealicealicealicealicealicealicealicealicealialicealicealicealicealicsealicelialiclicealealicealiceicealicealicealiceali', 0))
+        .concat(makeChars2('alicealicealicealicealicealicealicealicealicealialicealicealicealicealicsealicelialiclicealealicealiceicealicealicealiceali', 'a', 0))
         // invalid chars
         .concat(makeChars2('alicealicealicealicealicealicealicealicealiceali', 'cealicealicealicealicealicea$liceaealicealicealicealicealicealicealicealiceal', 203))
         // invalid chars - hyphen at begin

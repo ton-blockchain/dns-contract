@@ -214,7 +214,7 @@ PROGRAM{
     2592000 PUSHINT	//  end_min_price start_min_price seconds _15=2592000
     DIV	//  end_min_price start_min_price months
     DUP	//  end_min_price start_min_price months months
-    22 GTINT	//  end_min_price start_min_price months _18
+    21 GTINT	//  end_min_price start_min_price months _18
     IFJMP:<{	//  end_min_price start_min_price months
       2DROP	//  end_min_price
     }>	//  end_min_price start_min_price months
