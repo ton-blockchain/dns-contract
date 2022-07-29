@@ -362,7 +362,7 @@ PROGRAM{
         DICTUGET
         NULLSWAPIFNOT	//  domain sender_address nft_item_code item_index _103 _104
         NIP	//  domain sender_address nft_item_code item_index found
-        204 THROWIF
+        205 THROWIF
       }>ELSE<{
         DROP	//  domain sender_address nft_item_code item_index
       }>

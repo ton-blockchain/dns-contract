@@ -82,7 +82,7 @@ slice calculate_nft_item_address(int wc, cell state_init) {
             slice config_cs = config_cell.begin_parse();
             cell config = config_cs~load_dict();
             (slice config_value, int found) = config.udict_get?(256, item_index);
-            throw_if(204, found);
+            throw_if(205, found);
         }
 
         cell nft_content = begin_cell()
