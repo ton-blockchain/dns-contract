@@ -2,9 +2,9 @@
 
 int min_tons_for_storage() asm "1000000000 PUSHINT"; ;; 1 TON
 
-const auction_start_duration = 300; ;; 5 min (in mainnet 1 week)
-const auction_end_duration = 60; ;; 1 min (in mainnet 1 hour)
-const auction_prolongation = 10; ;; 10 sec (in mainnet 1 hour)
+const auction_start_duration = 604800; ;; 1 week = 60 * 60 * 24 * 7; in testnet 5 min
+const auction_end_duration = 3600; ;; 1 hour = 60 * 60; in testnet 1 min
+const auction_prolongation = 3600; ;; 1 hour = 60 * 60; in testnet 1 min
 
 ;;  MsgAddressInt max_bid_address
 ;;  Coins max_bid_amount
@@ -29,7 +29,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
 ;;
 ;;  Storage
 ;;
-;;  uint64 index
+;;  uint256 index
 ;;  MsgAddressInt collection_address
 ;;  MsgAddressInt owner_address
 ;;  cell content
@@ -63,7 +63,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
 
 () send_msg(slice to_address, int amount, int op, int query_id, builder payload, int send_mode) impure inline {
     var msg = begin_cell()
-            .store_uint(0x10, 6) ;; nobounce - int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
+            .store_uint(0x10, 6) ;; nobounce - int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 010000
             .store_slice(to_address)
             .store_coins(amount)
             .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)

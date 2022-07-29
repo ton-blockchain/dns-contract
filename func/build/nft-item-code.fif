@@ -208,7 +208,7 @@ PROGRAM{
     1000000000 PUSHINT	//  now_time start_min_price end_min_price _9=1000000000
     MUL	//  now_time start_min_price end_min_price
     s0 s2 XCHG
-    1658151330 PUSHINT	//  end_min_price start_min_price now_time _12=1658151330
+    1659171600 PUSHINT	//  end_min_price start_min_price now_time _12=1659171600
     SUB	//  end_min_price start_min_price seconds
     2592000 PUSHINT	//  end_min_price start_min_price seconds _15=2592000
     DIV	//  end_min_price start_min_price months
@@ -445,7 +445,7 @@ PROGRAM{
       STDICT	//  msg_value collection_address index from_address domain _54
       ENDC	//  msg_value collection_address index from_address domain content
       NOW	//  msg_value collection_address index from_address domain content _57
-      1658151330 PUSHINT	//  msg_value collection_address index from_address domain content _57 _58=1658151330
+      1659171600 PUSHINT	//  msg_value collection_address index from_address domain content _57 _58=1659171600
       SUB	//  msg_value collection_address index from_address domain content seconds
       2592000 PUSHINT	//  msg_value collection_address index from_address domain content seconds _61=2592000
       DIV	//  msg_value collection_address index from_address domain content months
@@ -455,12 +455,12 @@ PROGRAM{
         DROP	//  msg_value collection_address index from_address domain content
         12 PUSHINT	//  msg_value collection_address index from_address domain content months=12
       }>	//  msg_value collection_address index from_address domain content months
-      300 PUSHINT	//  msg_value collection_address index from_address domain content months _67=300
-      240 PUSHINT
-      ROT	//  msg_value collection_address index from_address domain content _67=300 _70 months
-      MUL	//  msg_value collection_address index from_address domain content _67=300 _71
-      12 PUSHINT	//  msg_value collection_address index from_address domain content _67=300 _71 _72=12
-      DIV	//  msg_value collection_address index from_address domain content _67=300 _73
+      604800 PUSHINT	//  msg_value collection_address index from_address domain content months _67=604800
+      601200 PUSHINT
+      ROT	//  msg_value collection_address index from_address domain content _67=604800 _70 months
+      MUL	//  msg_value collection_address index from_address domain content _67=604800 _71
+      12 PUSHINT	//  msg_value collection_address index from_address domain content _67=604800 _71 _72=12
+      DIV	//  msg_value collection_address index from_address domain content _67=604800 _73
       SUB	//  msg_value collection_address index from_address domain content duration
       NOW	//  msg_value collection_address index from_address domain content duration _76
       SWAP	//  msg_value collection_address index from_address domain content _76 duration
@@ -560,10 +560,10 @@ PROGRAM{
           DROP
           s6 POP	//  msg_value content owner_address sender_address domain auction_end_time index collection_address
         }>	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address
-        10 PUSHINT	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address _135=10
+        3600 PUSHINT	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address _135=3600
         s3 PUSH
-        NOW	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address _135=10 auction_end_time _136
-        SUB	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address _135=10 _137
+        NOW	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address _135=3600 auction_end_time _136
+        SUB	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address _135=3600 _137
         SUB	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address delta_time
         DUP	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address delta_time delta_time
         0 GTINT	//  max_bid_amount content owner_address max_bid_address domain auction_end_time index collection_address delta_time _140
@@ -826,7 +826,7 @@ PROGRAM{
         s5 POP	//  msg_value index collection_address sender_address content domain
       }>	//  max_bid_amount index collection_address max_bid_address content domain
       NOW	//  max_bid_amount index collection_address max_bid_address content domain _297
-      300 PUSHINT	//  max_bid_amount index collection_address max_bid_address content domain _297 _298=300
+      604800 PUSHINT	//  max_bid_amount index collection_address max_bid_address content domain _297 _298=604800
       ADD	//  max_bid_amount index collection_address max_bid_address content domain auction_end_time
       zero_address CALLDICT	//  max_bid_amount index collection_address max_bid_address content domain auction_end_time owner_address
       s4 s7 s7 XCHG3	//  owner_address index collection_address domain content max_bid_address max_bid_amount auction_end_time

@@ -1,10 +1,10 @@
 const int one_month = 2592000; ;; 1 month in seconds = 60 * 60 * 24 * 30
 const int one_year = 31622400; ;; 1 year in seconds = 60 * 60 * 24 * 366
-const int auction_start_time = 1658151330; ;; GMT: Monday, 18 July 2022 г., 13:35:30
+const int auction_start_time = 1659171600; ;; GMT: Monday, 30 July 2022 г., 09:00:00
 const int one_ton = 1000000000;
 const int dns_next_resolver_prefix = 0xba93; ;; dns_next_resolver prefix - https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
 
-const int dns_config_id = 80; ;; dns black list config param
+const int dns_config_id = 80; ;; dns black list config param; in testnet -80
 
 const int op::fill_up = 0x370fec51;
 const int op::outbid_notification = 0x557cea20;

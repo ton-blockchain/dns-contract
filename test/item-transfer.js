@@ -1,7 +1,7 @@
 const {funcer} = require("./funcer");
 const {
     TON, COLLECTION_ADDRESS, OWNER_ADDRESS, USER_ADDRESS, YEAR, FC_ITEM, makeStorageItem,
-    makeStorageItemComplete, CONTENT, AUCTION_START_TIME
+    makeStorageItemComplete, CONTENT, AUCTION_START_TIME, CONTENT_EMPTY
 } = require("./utils");
 
 const makeStorageItem2 = ({auctionEndTime}) => {
@@ -9,7 +9,7 @@ const makeStorageItem2 = ({auctionEndTime}) => {
         "uint256", '38930916800118655128984401856443062677799436388671332167772672007419684920584', // index,
         "Address", '0:' + COLLECTION_ADDRESS, // collection_address
         "Address", '0:' + USER_ADDRESS, // owner_address
-        'cell', CONTENT,
+        'cell', CONTENT_EMPTY,
         'cell', [ // domain
             'string', 'alice',
         ],

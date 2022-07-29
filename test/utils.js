@@ -3,10 +3,10 @@ const OWNER_ADDRESS = '448bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc0888
 const USER_ADDRESS = '548bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f';
 const MONTH = 2592000;
 const YEAR = 31622400;
-const AUCTION_START_DURATION = 300;
-const AUCTION_END_DURATION = 60;
-const AUCTION_PROLONGATION = 10;
-const AUCTION_START_TIME = 1658151330;
+const AUCTION_START_DURATION = 604800;
+const AUCTION_END_DURATION = 3600;
+const AUCTION_PROLONGATION = 3600;
+const AUCTION_START_TIME = 1659171600;
 
 const DNS_NEXT_RESOLVER_PREFIX = 0xba93;
 
@@ -62,6 +62,13 @@ const makeStorageItemNonInit = () => {
     ];
 }
 
+const CONTENT_EMPTY = [ // content
+    'uint8', 0,
+    'uint256->cell', { // content
+
+    },
+]
+
 const CONTENT = [ // content
     'uint8', 0,
     'uint256->cell', { // content
@@ -91,7 +98,7 @@ const makeStorageItem = ({auctionEndTime, lastFillUpTime}) => {
         "uint256", '38930916800118655128984401856443062677799436388671332167772672007419684920584', // index
         "Address", '0:' + COLLECTION_ADDRESS, // collection_address
         "uint2", '0', // owner_address - zero address
-        'cell', CONTENT,
+        'cell', CONTENT_EMPTY,
         'cell', [ // domain
             'string', 'alice',
         ],
@@ -110,7 +117,7 @@ const makeStorageItemComplete = ({auctionEndTime, lastFillUpTime}) => {
         "uint256", '38930916800118655128984401856443062677799436388671332167772672007419684920584', // index,
         "Address", '0:' + COLLECTION_ADDRESS, // collection_address
         "Address", '0:' + OWNER_ADDRESS, // owner_address
-        'cell', CONTENT,
+        'cell', CONTENT_EMPTY,
         'cell', [ // domain
             'string', 'alice',
         ],
@@ -140,5 +147,6 @@ module.exports = {
     makeStorageItemNonInit,
     makeStorageItemComplete,
     AUCTION_START_TIME,
-    CONTENT
+    CONTENT,
+    CONTENT_EMPTY
 };

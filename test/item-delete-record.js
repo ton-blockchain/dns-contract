@@ -2,7 +2,7 @@ const {funcer} = require("./funcer");
 const {
     makeStorageItemNonInit, FC_COLLECTION, DNS_NEXT_RESOLVER_PREFIX, AUCTION_START_DURATION,
     TON, COLLECTION_ADDRESS, OWNER_ADDRESS, USER_ADDRESS, YEAR, FC_ITEM, makeStorageItem,
-    makeStorageItemComplete, AUCTION_START_TIME
+    makeStorageItemComplete, AUCTION_START_TIME, CONTENT
 } = require("./utils");
 
 const CONTENT_WITH_WALLET = [
@@ -50,6 +50,20 @@ const makeStorageItem2 = ({auctionEndTime}) => {
     ];
 }
 
+const makeStorageItem3 = ({auctionEndTime}) => {
+    return [
+        "uint256", '38930916800118655128984401856443062677799436388671332167772672007419684920584', // index,
+        "Address", '0:' + COLLECTION_ADDRESS, // collection_address
+        "Address", '0:' + OWNER_ADDRESS, // owner_address
+        'cell', CONTENT,
+        'cell', [ // domain
+            'string', 'alice',
+        ],
+        'uint1', 0, // auction maybe
+        'uint64', AUCTION_START_TIME // last_fill_up_time
+    ];
+}
+
 funcer({'logVmOps': false, 'logFiftCode': false}, {
     'path': './func/',
     'fc': FC_ITEM,
@@ -65,7 +79,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 'uint64', 123,
                 'uint256', '0xe8d44050873dba865aa7c170ab4cce64d90839a34dcfd6cf71d14e0205443b1b',
             ],
-            "new_data": makeStorageItemComplete({}),
+            "new_data": makeStorageItem3({}),
             "out_msgs": [
             ]
         },

@@ -11,7 +11,7 @@ const {
     YEAR,
     FC_ITEM,
     makeStorageItemComplete,
-    makeStorageItem, CONTENT, AUCTION_START_TIME
+    makeStorageItem, CONTENT, AUCTION_START_TIME, CONTENT_EMPTY
 } = require("./utils");
 
 const makeStorageItem2 = ({auctionEndTime}) => {
@@ -19,7 +19,7 @@ const makeStorageItem2 = ({auctionEndTime}) => {
         "uint256", '38930916800118655128984401856443062677799436388671332167772672007419684920584', // index,
         "Address", '0:' + COLLECTION_ADDRESS, // collection_address
         "uint2", '0', // owner_address - zero address
-        'cell', CONTENT,
+        'cell', CONTENT_EMPTY,
         'cell', [ // domain
             'string', 'alice',
         ],
