@@ -32,7 +32,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 'string', "alice",
             ],
             "new_data": storage(),
-            "exit_code": 204
+            "exit_code": 205
         },
         {
             "time": AUCTION_START_TIME + 1,

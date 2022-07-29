@@ -927,7 +927,8 @@ PROGRAM{
     }>	//  keyvalue_map category
     SWAP
     8 PUSHPOW2	//  category keyvalue_map _46=256
-    DICTUGETREF	//  _61 _62
+    DICTUGETREF
+    NULLSWAPIFNOT	//  _61 _62
     DROP	//  value
     8 PUSHINT	//  value _48=8
     SWAP	//  _48=8 value
