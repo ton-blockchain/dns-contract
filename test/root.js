@@ -1,6 +1,6 @@
 const {funcer} = require("./funcer");
 const {
-    makeStorageRoot, FC_ROOT, DNS_NEXT_RESOLVER_PREFIX, TON, COLLECTION_ADDRESS, USER_ADDRESS
+    makeStorageRoot, FC_ROOT, DNS_NEXT_RESOLVER_PREFIX, TON, COLLECTION_ADDRESS, COLLECTION_ADDRESS2, COLLECTION_ADDRESS3, USER_ADDRESS
 } = require("./utils");
 
 const storage = () => {
@@ -32,7 +32,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 ["int", 3 * 8],
                 ["cell", [
                     'uint16', DNS_NEXT_RESOLVER_PREFIX,
-                    'address', '0:' + COLLECTION_ADDRESS
+                    'Address', '0:' + COLLECTION_ADDRESS
                 ],
                 ]
             ]
@@ -47,7 +47,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 ["int", 4 * 8],
                 ["cell", [
                     'uint16', DNS_NEXT_RESOLVER_PREFIX,
-                    'address', '0:' + COLLECTION_ADDRESS
+                    'Address', '0:' + COLLECTION_ADDRESS
                 ],
                 ]
             ]
@@ -62,7 +62,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 ["int", 3 * 8],
                 ["cell", [
                     'uint16', DNS_NEXT_RESOLVER_PREFIX,
-                    'address', '0:' + COLLECTION_ADDRESS
+                    'Address', '0:' + COLLECTION_ADDRESS
                 ],
                 ]
             ]
@@ -77,7 +77,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 ["int", 3 * 8],
                 ["cell", [
                     'uint16', DNS_NEXT_RESOLVER_PREFIX,
-                    'address', '0:' + COLLECTION_ADDRESS
+                    'Address', '0:' + COLLECTION_ADDRESS
                 ],
                 ]
             ]
@@ -92,7 +92,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 ["int", 4 * 8],
                 ["cell", [
                     'uint16', DNS_NEXT_RESOLVER_PREFIX,
-                    'address', '0:' + COLLECTION_ADDRESS
+                    'Address', '0:' + COLLECTION_ADDRESS
                 ],
                 ]
             ]
@@ -107,7 +107,7 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
                 ["int", 4 * 8],
                 ["cell", [
                     'uint16', DNS_NEXT_RESOLVER_PREFIX,
-                    'address', '0:' + COLLECTION_ADDRESS
+                    'Address', '0:' + COLLECTION_ADDRESS
                 ],
                 ]
             ]
@@ -143,6 +143,96 @@ funcer({'logVmOps': false, 'logFiftCode': false}, {
             "output": [
                 ["int", 8],
                 ["null", 'null']
+            ]
+        },
+        {
+            "name": "dnsresolve",
+            "args": [
+                ['bytes', new TextEncoder().encode('me\0t\0')],
+                ['int', '0']
+            ],
+            "output": [
+                ["int", 4 * 8],
+                ["cell", [
+                    'uint16', DNS_NEXT_RESOLVER_PREFIX,
+                    'Address', '0:' + COLLECTION_ADDRESS2
+                ],
+                ]
+            ]
+        },
+        {
+            "name": "dnsresolve",
+            "args": [
+                ['bytes', new TextEncoder().encode('\0me\0t\0')],
+                ['int', '0']
+            ],
+            "output": [
+                ["int", 5 * 8],
+                ["cell", [
+                    'uint16', DNS_NEXT_RESOLVER_PREFIX,
+                    'Address', '0:' + COLLECTION_ADDRESS2
+                ],
+                ]
+            ]
+        },
+        {
+            "name": "dnsresolve",
+            "args": [
+                ['bytes', new TextEncoder().encode('me\0t\0alice\0')],
+                ['int', '0']
+            ],
+            "output": [
+                ["int", 4 * 8],
+                ["cell", [
+                    'uint16', DNS_NEXT_RESOLVER_PREFIX,
+                    'Address', '0:' + COLLECTION_ADDRESS2
+                ],
+                ]
+            ]
+        },
+        {
+            "name": "dnsresolve",
+            "args": [
+                ['bytes', new TextEncoder().encode('ton\0www\0')],
+                ['int', '0']
+            ],
+            "output": [
+                ["int", 7 * 8],
+                ["cell", [
+                    'uint16', DNS_NEXT_RESOLVER_PREFIX,
+                    'Address', '0:' + COLLECTION_ADDRESS3
+                ],
+                ]
+            ]
+        },
+        {
+            "name": "dnsresolve",
+            "args": [
+                ['bytes', new TextEncoder().encode('\0ton\0www\0')],
+                ['int', '0']
+            ],
+            "output": [
+                ["int", 8 * 8],
+                ["cell", [
+                    'uint16', DNS_NEXT_RESOLVER_PREFIX,
+                    'Address', '0:' + COLLECTION_ADDRESS3
+                ],
+                ]
+            ]
+        },
+        {
+            "name": "dnsresolve",
+            "args": [
+                ['bytes', new TextEncoder().encode('ton\0www\0subdomain\0')],
+                ['int', '0']
+            ],
+            "output": [
+                ["int", 7 * 8],
+                ["cell", [
+                    'uint16', DNS_NEXT_RESOLVER_PREFIX,
+                    'Address', '0:' + COLLECTION_ADDRESS3
+                ],
+                ]
             ]
         },
         // {

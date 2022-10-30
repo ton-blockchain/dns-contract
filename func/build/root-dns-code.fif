@@ -205,13 +205,17 @@ PROGRAM{
       DIV	//  start_min_price
     }>
   }>
-  load_data PROC:<{
+  load_data PROCINLINE:<{
     // 
-    c4 PUSH	//  _0
-    CTOS	//  _1
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    LDMSGADDR	//  _3 ds
+    LDMSGADDR	//  _3 _5 ds
+    LDMSGADDR	//  _3 _5 _14 _13
+    DROP	//  _3 _5 _7
   }>
   dnsresolve PROC:<{
-    //  subdomain category
+    SAMEALTSAVE	//  subdomain category
     DROP	//  subdomain
     DUP	//  subdomain subdomain
     SBITS	//  subdomain _3
@@ -223,52 +227,145 @@ PROGRAM{
     8 PLDI	//  subdomain _11
     0 EQINT	//  subdomain starts_with_zero_byte
     OVER	//  subdomain starts_with_zero_byte subdomain
-    SBITS	//  subdomain starts_with_zero_byte _14
-    8 EQINT	//  subdomain starts_with_zero_byte _16
-    s1 s(-1) PUXC	//  subdomain starts_with_zero_byte starts_with_zero_byte _16
-    AND	//  subdomain starts_with_zero_byte _17
-    IFJMP:<{	//  subdomain starts_with_zero_byte
-      2DROP	// 
-      8 PUSHINT	//  _18=8
-      PUSHNULL	//  _18=8 _19
-    }>	//  subdomain starts_with_zero_byte
-    DUP	//  subdomain starts_with_zero_byte starts_with_zero_byte
-    IF:<{	//  subdomain starts_with_zero_byte
-      SWAP	//  starts_with_zero_byte subdomain
-      8 LDU	//  starts_with_zero_byte _49 _48
-      NIP	//  starts_with_zero_byte subdomain
-      SWAP	//  subdomain starts_with_zero_byte
-    }>	//  subdomain starts_with_zero_byte
-    OVER	//  subdomain starts_with_zero_byte subdomain
-    get_top_domain_bits CALLDICT	//  subdomain starts_with_zero_byte top_subdomain_bits
-    s1 s2 XCHG	//  starts_with_zero_byte subdomain top_subdomain_bits
-    LDSLICEX	//  starts_with_zero_byte _51 _50
-    DROP	//  starts_with_zero_byte top_subdomain
-    x{746f6e} PUSHSLICE	//  starts_with_zero_byte top_subdomain my_domain
-    DUP	//  starts_with_zero_byte top_subdomain my_domain my_domain
-    SBITS	//  starts_with_zero_byte top_subdomain my_domain my_domain_bits
-    -ROT	//  starts_with_zero_byte my_domain_bits top_subdomain my_domain
-    SDEQ	//  starts_with_zero_byte my_domain_bits _32
-    NOT	//  starts_with_zero_byte my_domain_bits _33
-    IFJMP:<{	//  starts_with_zero_byte my_domain_bits
-      2DROP	// 
-      0 PUSHINT	//  _34=0
-      PUSHNULL	//  _34=0 _35
-    }>	//  starts_with_zero_byte my_domain_bits
-    47763 PUSHINT	//  starts_with_zero_byte my_domain_bits _37=47763
-    NEWC	//  starts_with_zero_byte my_domain_bits _37=47763 _38
-    16 STU	//  starts_with_zero_byte my_domain_bits _40
-    load_data INLINECALLDICT	//  starts_with_zero_byte my_domain_bits _40 _41
-    STSLICER	//  starts_with_zero_byte my_domain_bits _42
-    ENDC	//  starts_with_zero_byte my_domain_bits result
-    s0 s2 XCHG	//  result my_domain_bits starts_with_zero_byte
-    IF:<{	//  result my_domain_bits
-      8 PUSHINT	//  result my_domain_bits _44=8
-    }>ELSE<{	//  result my_domain_bits
-      0 PUSHINT	//  result my_domain_bits _44=0
+    SBITS	//  subdomain starts_with_zero_byte subdomain_len
+    DUP	//  subdomain starts_with_zero_byte subdomain_len subdomain_len
+    8 EQINT	//  subdomain starts_with_zero_byte subdomain_len _17
+    s2 s(-1) PUXC	//  subdomain starts_with_zero_byte subdomain_len starts_with_zero_byte _17
+    AND	//  subdomain starts_with_zero_byte subdomain_len _18
+    IFJMP:<{	//  subdomain starts_with_zero_byte subdomain_len
+      3 BLKDROP	// 
+      8 PUSHINT	//  _19=8
+      PUSHNULL	//  _19=8 _20
+    }>	//  subdomain starts_with_zero_byte subdomain_len
+    OVER	//  subdomain starts_with_zero_byte subdomain_len starts_with_zero_byte
+    IF:<{	//  subdomain starts_with_zero_byte subdomain_len
+      s0 s2 XCHG	//  subdomain_len starts_with_zero_byte subdomain
+      8 LDU	//  subdomain_len starts_with_zero_byte _137 _136
+      NIP	//  subdomain_len starts_with_zero_byte subdomain
+      s0 s2 XCHG	//  subdomain starts_with_zero_byte subdomain_len
+    }>	//  subdomain starts_with_zero_byte subdomain_len
+    load_data INLINECALLDICT	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address
+    0 PUSHINT	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0
+    DUP	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _30=0
+    NEWC	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _30=0 _31
+    x{746f6e} PUSHSLICE	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _30=0 _31 _32
+    STSLICER	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _30=0 _33
+    8 STU	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _35
+    x{777777} PUSHSLICE	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _35 _36
+    STSLICER	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _29=0 _37
+    8 STU	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _39
+    ENDC	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _40
+    CTOS	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address ton_www_domain
+    s4 PUSH	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address ton_www_domain subdomain_len
+    63 GTINT	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address ton_www_domain _45
+    IF:<{	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address ton_www_domain
+      s6 PUSH	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address ton_www_domain subdomain
+      64 PLDSLICE	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address ton_www_domain _49
+      SWAP	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _49 ton_www_domain
+      SDEQ	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address _50
+      IFJMP:<{	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address
+        s5 POP
+        3 BLKDROP	//  ton_www_address starts_with_zero_byte
+        47763 PUSHINT	//  ton_www_address starts_with_zero_byte _52=47763
+        NEWC	//  ton_www_address starts_with_zero_byte _52=47763 _53
+        16 STU	//  ton_www_address starts_with_zero_byte _55
+        ROT	//  starts_with_zero_byte _55 ton_www_address
+        STSLICER	//  starts_with_zero_byte _56
+        ENDC	//  starts_with_zero_byte result
+        SWAP	//  result starts_with_zero_byte
+        IF:<{	//  result
+          8 PUSHINT	//  result _61=8
+        }>ELSE<{	//  result
+          0 PUSHINT	//  result _61=0
+        }>
+        56 ADDCONST	//  result _64
+        SWAP
+        RETALT	//  _64 result
+      }>	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_www_address
+      DROP	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address
+    }>ELSE<{
+      2DROP	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address
     }>
-    ADD	//  result _47
-    SWAP	//  _47 result
+    0 PUSHINT	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _66=0
+    NEWC	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _66=0 _67
+    x{746f6e} PUSHSLICE	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _66=0 _67 _68
+    STSLICER	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _66=0 _69
+    8 STU	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _71
+    ENDC	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _72
+    CTOS	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_domain
+    s3 PUSH	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_domain subdomain_len
+    31 GTINT	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_domain _77
+    IF:<{	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_domain
+      s5 PUSH	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_domain subdomain
+      32 PLDSLICE	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address ton_domain _81
+      SWAP	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _81 ton_domain
+      SDEQ	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address _82
+      IFJMP:<{	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address
+        DROP
+        NIP
+        s2 POP	//  ton_address starts_with_zero_byte
+        47763 PUSHINT	//  ton_address starts_with_zero_byte _84=47763
+        NEWC	//  ton_address starts_with_zero_byte _84=47763 _85
+        16 STU	//  ton_address starts_with_zero_byte _87
+        ROT	//  starts_with_zero_byte _87 ton_address
+        STSLICER	//  starts_with_zero_byte _88
+        ENDC	//  starts_with_zero_byte result
+        SWAP	//  result starts_with_zero_byte
+        IF:<{	//  result
+          8 PUSHINT	//  result _93=8
+        }>ELSE<{	//  result
+          0 PUSHINT	//  result _93=0
+        }>
+        24 ADDCONST	//  result _96
+        SWAP
+        RETALT	//  _96 result
+      }>	//  subdomain starts_with_zero_byte subdomain_len ton_address t_me_address
+      NIP	//  subdomain starts_with_zero_byte subdomain_len t_me_address
+    }>ELSE<{
+      DROP
+      NIP	//  subdomain starts_with_zero_byte subdomain_len t_me_address
+    }>
+    0 PUSHINT	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0
+    DUP	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _99=0
+    NEWC	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _99=0 _100
+    x{6d65} PUSHSLICE	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _99=0 _100 _101
+    STSLICER	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _99=0 _102
+    8 STU	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _104
+    x{74} PUSHSLICE	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _104 _105
+    STSLICER	//  subdomain starts_with_zero_byte subdomain_len t_me_address _98=0 _106
+    8 STU	//  subdomain starts_with_zero_byte subdomain_len t_me_address _108
+    ENDC	//  subdomain starts_with_zero_byte subdomain_len t_me_address _109
+    CTOS	//  subdomain starts_with_zero_byte subdomain_len t_me_address t_me_domain
+    s0 s2 XCHG	//  subdomain starts_with_zero_byte t_me_domain t_me_address subdomain_len
+    39 GTINT	//  subdomain starts_with_zero_byte t_me_domain t_me_address _114
+    IF:<{	//  subdomain starts_with_zero_byte t_me_domain t_me_address
+      s0 s3 XCHG	//  t_me_address starts_with_zero_byte t_me_domain subdomain
+      40 PLDSLICE	//  t_me_address starts_with_zero_byte t_me_domain _118
+      SWAP	//  t_me_address starts_with_zero_byte _118 t_me_domain
+      SDEQ	//  t_me_address starts_with_zero_byte _119
+      IFJMP:<{	//  t_me_address starts_with_zero_byte
+        47763 PUSHINT	//  t_me_address starts_with_zero_byte _121=47763
+        NEWC	//  t_me_address starts_with_zero_byte _121=47763 _122
+        16 STU	//  t_me_address starts_with_zero_byte _124
+        ROT	//  starts_with_zero_byte _124 t_me_address
+        STSLICER	//  starts_with_zero_byte _125
+        ENDC	//  starts_with_zero_byte result
+        SWAP	//  result starts_with_zero_byte
+        IF:<{	//  result
+          8 PUSHINT	//  result _130=8
+        }>ELSE<{	//  result
+          0 PUSHINT	//  result _130=0
+        }>
+        32 ADDCONST	//  result _133
+        SWAP
+        RETALT	//  _133 result
+      }>	//  t_me_address starts_with_zero_byte
+      2DROP	// 
+    }>ELSE<{
+      4 BLKDROP	// 
+    }>
+    0 PUSHINT	//  _134=0
+    PUSHNULL	//  _134=0 _135
   }>
   recv_internal PROC:<{
     //  msg_value in_msg_full in_msg_body
