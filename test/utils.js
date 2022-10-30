@@ -1,5 +1,6 @@
 const COLLECTION_ADDRESS = '348bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f';
 const COLLECTION_ADDRESS2 = 'a48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f';
+const COLLECTION_ADDRESS3 = 'b48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f';
 const OWNER_ADDRESS = '448bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f';
 const USER_ADDRESS = '548bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f';
 const MONTH = 2592000;
@@ -43,7 +44,8 @@ const TON = 1e9;
 const makeStorageRoot = ({}) => {
     return [
         "Address", '0:' + COLLECTION_ADDRESS,
-        "Address", '0:' + COLLECTION_ADDRESS2
+        "Address", '0:' + COLLECTION_ADDRESS2,
+        "Address", '0:' + COLLECTION_ADDRESS3
     ];
 }
 
@@ -132,6 +134,7 @@ module.exports = {
     YEAR,
     COLLECTION_ADDRESS,
     COLLECTION_ADDRESS2,
+    COLLECTION_ADDRESS3,
     OWNER_ADDRESS,
     USER_ADDRESS,
     FC_ROOT,
