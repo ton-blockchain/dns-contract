@@ -78,3 +78,10 @@
 
 () recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
 }
+
+(cell) get_all_root_domains() method_id {
+    cell dict = new_dict();
+    dict~udict_add?(16,0,"ton"s);
+    dict~udict_add?(16,1,"t.me"s);
+    return dict;
+}
