@@ -1,4 +1,4 @@
-;; Domain smart contract (implement NFT item interface)
+tan;; Domain smart contract (implement NFT item interface)
 
 int min_tons_for_storage() asm "1000000000 PUSHINT"; ;; 1 TON
 
@@ -177,7 +177,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
         return ();
     }
 
-    int query_id = in_msg_body~load_uint(64);
+   esc int query_id = in_msg_body~load_uint(64);
 
     if ((auction_complete) & (~ cell_null?(auction))) { ;; take domain after auction
         int balance_without_msg = my_balance - msg_value;
@@ -246,7 +246,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
         int balance_without_msg = my_balance - msg_value;
         int amount_to_send = balance_without_msg - min_tons_for_storage();
         if (amount_to_send > 0) {
-            send_msg(owner_address, amount_to_send, op::dns_balance_release, query_id, null(), 2); ;; ignore errors
+         tab   send_msg(owner_address, amount_to_send, op::dns_balance_release, query_id, null(), 2); ;; ignore errors
         }
         max_bid_amount = msg_value;
         max_bid_address = sender_address;
