@@ -225,6 +225,7 @@ cell pack_auction(slice max_bid_address, int max_bid_amount, int auction_end_tim
     }
     if (op == op::process_governance_decision) { ;; governance
         throw_unless(413, cell_null?(auction));
+        throw_unless(414, equal_slices(sender_address, collection_address)); ;; only collection can execute governance
         slice cs = config_param(dns_config_id).begin_parse();
         cell config = cs~load_dict();
         (slice config_value, int found) = config.udict_get?(256, index);
